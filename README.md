@@ -2,9 +2,10 @@
 
 ## Buzzer Plugin calls buzzer on cbpi notifications
 
-- Settings will be added by thins plugin
+- Settings will be added by this plugin
 - buzzer_gpio: GPIO your buzzer is conected to
 - buzzer_level: Sound level(High or Low)
+- Different sounds for error, warning and other message types
 
 -  Changelog
 

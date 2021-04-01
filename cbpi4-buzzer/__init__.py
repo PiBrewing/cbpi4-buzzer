@@ -38,7 +38,9 @@ class Buzzer(CBPiExtension):
 
 
     async def run(self):
-        self.sound = ["H", 0.1, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.1, "L"]
+        self.sound = {'standard':["H", 0.1, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.1, "L"],
+                      'warning':["H", 0.2, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.1, "L"],
+                      'error':["H", 0.3, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.1, "L"]}
         logger.info('Starting Buzzer background task')
         await self.buzzer_gpio()
         await self.buzzer_level()
@@ -51,6 +53,7 @@ class Buzzer(CBPiExtension):
             logger.info("Buzzer Lisetener ID: {}".format(self.listener_ID))
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(buzzer_gpio, GPIO.OUT)
+            logging.info("Buzzer started")
             await self.start_buzz()
         pass
 
@@ -98,15 +101,20 @@ class Buzzer(CBPiExtension):
         if buzzer_level is None:
             logger.info("INIT Buzzer Beep Level")
             try:
-                await self.cbpi.config.add("buzzer_level", "HIGH", ConfigType.SELECT, "Buzzer Beep Level", [{"label": "HIGH","value": "HIGH"},{"label": "LOW", "value": "LOW"}])
+                await self.cbpi.config.add("buzzer_level", "HIGH", ConfigType.SELECT, "Buzzer Beep Level", [{"label": "HIGH","value": "HIGH"},
+                                                                                                            {"label": "LOW", "value": "LOW"}])
                 buzzer_level = self.cbpi.config.get("buzzer_level", None)
             except:
                 logger.warning('Unable to update database')
 
     async def buzzerEvent(self, cbpi, title, message, type, action):
+        if str(type) == "info" or str(type) == "success":
+            type = "standard"
+        else:
+            type = str(type)
+
         try:
-            for i in self.sound:
-                logging.info(i)
+            for i in self.sound[type]:
                 if (isinstance(i, str)):
                     if i == "H" and buzzer_level == "HIGH":
                         GPIO.output(int(buzzer_gpio), GPIO.HIGH)
@@ -123,8 +131,7 @@ class Buzzer(CBPiExtension):
 
     async def start_buzz(self):
         try:
-            for i in self.sound:
-                logging.info(i)
+            for i in self.sound['standard']:
                 if (isinstance(i, str)):
                     if i == "H" and buzzer_level == "HIGH":
                         GPIO.output(int(buzzer_gpio), GPIO.HIGH)
