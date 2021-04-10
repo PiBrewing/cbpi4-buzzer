@@ -9,6 +9,6 @@
 
 -  Changelog
 
-**01.04.2021:
+**10.04.21: changed from asyncio.sleep to a thread as buzzer sound was impacted by asyncio.sleep accuracy
 
-- Initial release
+**01.04.21: Initial release

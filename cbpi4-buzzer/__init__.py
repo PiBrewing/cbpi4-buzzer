@@ -1,6 +1,6 @@
 
 # -*- coding: utf-8 -*-
-import os
+import os, threading, time
 from aiohttp import web
 import logging
 from unittest.mock import MagicMock, patch
@@ -30,6 +30,42 @@ buzzer_gpio = None
 buzzer_level = None
 buzzer = None
 
+class BuzzerThread (threading.Thread):
+
+    def __init__(self, sound,gpio,level):
+        threading.Thread.__init__(self)
+        self.gpio = gpio
+        self.sound = sound
+        self.level = level
+        self.runnig = True
+
+    def shutdown(self):
+        pass
+
+    def stop(self):
+        pass
+
+    def run(self):
+        try:
+            for i in self.sound:
+                if (isinstance(i, str)):
+                    if i == "H" and self.level == "HIGH":
+                        GPIO.output(int(self.gpio), GPIO.HIGH)
+                    elif i == "H" and self.level != "HIGH":
+                        GPIO.output(int(self.gpio), GPIO.LOW)
+                    elif i == "L" and self.level == "HIGH":
+                        GPIO.output(int(self.gpio), GPIO.LOW)
+                    else:
+                        GPIO.output(int(self.gpio), GPIO.HIGH)
+                else:
+                    time.sleep(i)
+        except Exception as e:
+            pass
+        finally:
+            pass
+
+
+
 class Buzzer(CBPiExtension):
 
     def __init__(self,cbpi):
@@ -39,8 +75,8 @@ class Buzzer(CBPiExtension):
 
     async def run(self):
         self.sound = {'standard':["H", 0.1, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.1, "L"],
-                      'warning':["H", 0.2, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.1, "L"],
-                      'error':["H", 0.3, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.1, "L"]}
+                      'warning':["H", 0.2, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.2, "L"],
+                      'error':["H", 0.3, "L", 0.1, "H", 0.3, "L", 0.1, "H", 0.3, "L"]}
         logger.info('Starting Buzzer background task')
         await self.buzzer_gpio()
         await self.buzzer_level()
@@ -113,39 +149,16 @@ class Buzzer(CBPiExtension):
         else:
             type = str(type)
 
-        try:
-            for i in self.sound[type]:
-                if (isinstance(i, str)):
-                    if i == "H" and buzzer_level == "HIGH":
-                        GPIO.output(int(buzzer_gpio), GPIO.HIGH)
-                    elif i == "H" and buzzer_level != "HIGH":
-                        GPIO.output(int(buzzer_gpio), GPIO.LOW)
-                    elif i == "L" and buzzer_level == "HIGH":
-                        GPIO.output(int(buzzer_gpio), GPIO.LOW)
-                    else:
-                        GPIO.output(int(buzzer_gpio), GPIO.HIGH)
-                else:
-                    await asyncio.sleep(i)
-        except Exception as e:
-            pass
+        self.buzzer = BuzzerThread(self.sound[type],buzzer_gpio,buzzer_level)
+        self.buzzer.daemon = False
+        self.buzzer.start()
+        self.buzzer.stop()
 
     async def start_buzz(self):
-        try:
-            for i in self.sound['standard']:
-                if (isinstance(i, str)):
-                    if i == "H" and buzzer_level == "HIGH":
-                        GPIO.output(int(buzzer_gpio), GPIO.HIGH)
-                    elif i == "H" and buzzer_level != "HIGH":
-                        GPIO.output(int(buzzer_gpio), GPIO.LOW)
-                    elif i == "L" and buzzer_level == "HIGH":
-                        GPIO.output(int(buzzer_gpio), GPIO.LOW)
-                    else:
-                        GPIO.output(int(buzzer_gpio), GPIO.HIGH)
-                else:
-                    await asyncio.sleep(i)
-        except Exception as e:
-            pass
-
+        self.buzzer = BuzzerThread(self.sound['standard'],buzzer_gpio,buzzer_level)
+        self.buzzer.daemon = False
+        self.buzzer.start()
+        self.buzzer.stop()
 
 def setup(cbpi):
     cbpi.plugin.register("Buzzer", Buzzer)
