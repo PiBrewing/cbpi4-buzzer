@@ -1,2 +1,1 @@
 include cbpi4-buzzer/config.yaml
-recursive-include cbpi4-buzzer/static *
