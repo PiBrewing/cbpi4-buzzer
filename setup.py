@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='cbpi4-buzzer',
-      version='0.0.2',
+      version='0.0.3',
       description='CraftBeerPi4 Buzzer Plugin',
       author='Alexander Vollkopf',
       author_email='avollkopf@web.de',
@@ -19,9 +19,6 @@ setup(name='cbpi4-buzzer',
       '': ['*.txt', '*.rst', '*.yaml'],
       'cbpi4-buzzer': ['*','*.txt', '*.rst', '*.yaml']},
       packages=['cbpi4-buzzer'],
-	    install_requires=[
-            'cbpi>=4.0.0.33',
-      ],
       long_description=long_description,
       long_description_content_type='text/markdown'
      )
