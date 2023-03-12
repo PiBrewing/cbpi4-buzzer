@@ -7,11 +7,11 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='cbpi4-buzzer',
-      version='0.0.3',
+      version='0.0.4',
       description='CraftBeerPi4 Buzzer Plugin',
       author='Alexander Vollkopf',
       author_email='avollkopf@web.de',
-      url='https://github.com/avollkopf/cbpi4-buzzer',
+      url='https://github.com/PiBrewing/cbpi4-buzzer',
       license='GPLv3',
       include_package_data=True,
       package_data={
