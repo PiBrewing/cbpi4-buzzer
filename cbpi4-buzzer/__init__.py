@@ -103,9 +103,9 @@ class Buzzer(CBPiExtension):
         global buzzer_gpio_inverted
         buzzer_gpio_inverted = self.cbpi.config.get("buzzer_gpio_inverted", None)
         if buzzer_gpio_inverted is None:
-            logger.info("INIT Buzzer GPIO")
+            logger.info("INIT Buzzer GPIO Inverted")
             try:
-                await self.cbpi.config.add("buzzer_gpio_inverted", "no", ConfigType.SELECT, "Buzzer GPIO Inverted ('High' on 'Low')", [{"label": "no", "value": False},
+                await self.cbpi.config.add("buzzer_gpio_inverted", False, ConfigType.SELECT, "Buzzer GPIO Inverted ('High' on 'Low')", [{"label": "no", "value": False},
                                                                                                 {"label": "yes", "value": True}])
                 buzzer_gpio_inverted = self.cbpi.config.get("buzzer_gpio_inverted", False)
             except:
