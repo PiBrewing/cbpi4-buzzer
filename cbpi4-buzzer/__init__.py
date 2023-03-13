@@ -10,6 +10,8 @@ from cbpi.api import *
 from cbpi.api.config import ConfigType
 from cbpi.api.base import CBPiBase
 
+logger = logging.getLogger(__name__)
+
 try:
     import RPi.GPIO as GPIO
 except Exception:
@@ -23,21 +25,22 @@ except Exception:
     patcher.start()
     import RPi.GPIO as GPIO
 
-
-logger = logging.getLogger(__name__)
-
 buzzer_gpio = None
+buzzer_gpio_inverted = None
 buzzer_level = None
 buzzer = None
 
 class BuzzerThread (threading.Thread):
 
-    def __init__(self, sound,gpio,level):
+    def __init__(self, sound,gpio, gpio_inverted, level):
         threading.Thread.__init__(self)
         self.gpio = gpio
+        self.gpio_inverted = gpio_inverted
         self.sound = sound
         self.level = level
         self.runnig = True
+        self.HIGH = 1 if self.gpio_inverted is False else 0
+        self.LOW = 0 if self.gpio_inverted is False else 1
 
     def shutdown(self):
         pass
@@ -50,13 +53,13 @@ class BuzzerThread (threading.Thread):
             for i in self.sound:
                 if (isinstance(i, str)):
                     if i == "H" and self.level == "HIGH":
-                        GPIO.output(int(self.gpio), GPIO.HIGH)
+                        GPIO.output(int(self.gpio), self.HIGH)
                     elif i == "H" and self.level != "HIGH":
-                        GPIO.output(int(self.gpio), GPIO.LOW)
+                        GPIO.output(int(self.gpio), self.LOW)
                     elif i == "L" and self.level == "HIGH":
-                        GPIO.output(int(self.gpio), GPIO.LOW)
+                        GPIO.output(int(self.gpio), self.LOW)
                     else:
-                        GPIO.output(int(self.gpio), GPIO.HIGH)
+                        GPIO.output(int(self.gpio), self.HIGH)
                 else:
                     time.sleep(i)
         except Exception as e:
@@ -79,9 +82,12 @@ class Buzzer(CBPiExtension):
                       'error':["H", 0.3, "L", 0.1, "H", 0.3, "L", 0.1, "H", 0.3, "L"]}
         logger.info('Starting Buzzer background task')
         await self.buzzer_gpio()
+        await self.buzzer_gpio_inverted()
         await self.buzzer_level()
         if buzzer_gpio is None or buzzer_gpio == "" or not buzzer_gpio:
             logger.warning('Check buzzer GPIO is set')
+        if buzzer_gpio_inverted is None or buzzer_gpio_inverted == "" or not buzzer_gpio_inverted:
+            logger.warning('Check buzzer GPIO Inverted is set')
         if buzzer_level is None or buzzer_level == "" or not buzzer_level:
             logger.warning('Check buzzer level is set') 
         else:
@@ -92,6 +98,18 @@ class Buzzer(CBPiExtension):
             logging.info("Buzzer started")
             await self.start_buzz()
         pass
+
+    async def buzzer_gpio_inverted(self):
+        global buzzer_gpio_inverted
+        buzzer_gpio_inverted = self.cbpi.config.get("buzzer_gpio_inverted", None)
+        if buzzer_gpio_inverted is None:
+            logger.info("INIT Buzzer GPIO Inverted")
+            try:
+                await self.cbpi.config.add("buzzer_gpio_inverted", False, ConfigType.SELECT, "Buzzer GPIO Inverted ('High' on 'Low')", [{"label": "no", "value": False},
+                                                                                                {"label": "yes", "value": True}])
+                buzzer_gpio_inverted = self.cbpi.config.get("buzzer_gpio_inverted", False)
+            except:
+                logger.warning('Unable to update config')
 
     async def buzzer_gpio(self):
         global buzzer_gpio
@@ -149,13 +167,13 @@ class Buzzer(CBPiExtension):
         else:
             type = str(type)
 
-        self.buzzer = BuzzerThread(self.sound[type],buzzer_gpio,buzzer_level)
+        self.buzzer = BuzzerThread(self.sound[type], buzzer_gpio, buzzer_gpio_inverted, buzzer_level)
         self.buzzer.daemon = False
         self.buzzer.start()
         self.buzzer.stop()
 
     async def start_buzz(self):
-        self.buzzer = BuzzerThread(self.sound['standard'],buzzer_gpio,buzzer_level)
+        self.buzzer = BuzzerThread(self.sound['standard'], buzzer_gpio, buzzer_gpio_inverted, buzzer_level)
         self.buzzer.daemon = False
         self.buzzer.start()
         self.buzzer.stop()
