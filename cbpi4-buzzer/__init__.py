@@ -1,6 +1,6 @@
 
 # -*- coding: utf-8 -*-
-import os, threading, time
+import threading, time
 from aiohttp import web
 import logging
 from unittest.mock import MagicMock, patch
@@ -9,6 +9,7 @@ import random
 from cbpi.api import *
 from cbpi.api.config import ConfigType
 from cbpi.api.base import CBPiBase
+import os, re
 
 logger = logging.getLogger(__name__)
 
@@ -77,13 +78,22 @@ class Buzzer(CBPiExtension):
 
 
     async def run(self):
+        this_directory = os.path.join( os.path.dirname( __file__ ), '..' )
+        with open(os.path.join(this_directory, 'version.py'), encoding='latin1') as fp:
+            #long_description = fp.read()
+            try:
+                match = re.search('.*\"(.*)\"', fp.readline())
+                self.version = match.group(1)
+            except:
+                self.version="0.0.0"
+        self.buzzer_update = self.cbpi.config.get("buzzer_update", None)
+        logging.error(self.buzzer_update)
+
         self.sound = {'standard':["H", 0.1, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.1, "L"],
                       'warning':["H", 0.2, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.2, "L"],
                       'error':["H", 0.3, "L", 0.1, "H", 0.3, "L", 0.1, "H", 0.3, "L"]}
         logger.info('Starting Buzzer background task')
-        await self.buzzer_gpio()
-        await self.buzzer_gpio_inverted()
-        await self.buzzer_level()
+        await self.buzzer_settings()
         if buzzer_gpio is None or buzzer_gpio == "" or not buzzer_gpio:
             logger.warning('Check buzzer GPIO is set')
         if buzzer_gpio_inverted is None or buzzer_gpio_inverted == "" or not buzzer_gpio_inverted:
@@ -99,25 +109,41 @@ class Buzzer(CBPiExtension):
             await self.start_buzz()
         pass
 
-    async def buzzer_gpio_inverted(self):
+    async def buzzer_settings(self):
         global buzzer_gpio_inverted
+        global buzzer_gpio
+        global buzzer_level
+        buzzer_level = self.cbpi.config.get("buzzer_level", None)
+        buzzer_gpio = self.cbpi.config.get("buzzer_gpio", None)
         buzzer_gpio_inverted = self.cbpi.config.get("buzzer_gpio_inverted", None)
+
         if buzzer_gpio_inverted is None:
             logger.info("INIT Buzzer GPIO Inverted")
             try:
-                await self.cbpi.config.add("buzzer_gpio_inverted", False, ConfigType.SELECT, "Buzzer GPIO Inverted ('High' on 'Low')", [{"label": "no", "value": False},
-                                                                                                {"label": "yes", "value": True}])
+                await self.cbpi.config.add("buzzer_gpio_inverted", False, type=ConfigType.SELECT, description="Buzzer GPIO Inverted ('High' on 'Low')",
+                                                                                                            options= [{"label": "no", "value": False}, 
+                                                                                                                        {"label": "yes", "value": True}],
+                                                                                                            source="cbpi4-buzzer")
                 buzzer_gpio_inverted = self.cbpi.config.get("buzzer_gpio_inverted", False)
             except:
                 logger.warning('Unable to update config')
+        else:
+            if self.buzzer_update == None or self.buzzer_update != self.version:
+                try:
+                    logging.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    await self.cbpi.config.add("buzzer_gpio_inverted",buzzer_gpio_inverted, type=ConfigType.SELECT, description="Buzzer GPIO Inverted ('High' on 'Low')",
+                                           options= [{"label": "no", "value": False}, 
+                                                     {"label": "yes", "value": True}],
+                                           source="cbpi4-buzzer")
+                except:
+                    logger.warning('Unable to update config')                
 
-    async def buzzer_gpio(self):
-        global buzzer_gpio
-        buzzer_gpio = self.cbpi.config.get("buzzer_gpio", None)
+
         if buzzer_gpio is None:
             logger.info("INIT Buzzer GPIO")
             try:
-                await self.cbpi.config.add("buzzer_gpio", 5, ConfigType.SELECT, "Buzzer GPIO", [{"label": "0", "value": 0},
+                await self.cbpi.config.add("buzzer_gpio", 5, type=ConfigType.SELECT, description="Buzzer GPIO", 
+                                                                                        options=[{"label": "0", "value": 0},
                                                                                                 {"label": "1", "value": 1},
                                                                                                 {"label": "2", "value": 2},
                                                                                                 {"label": "3", "value": 3},
@@ -144,22 +170,77 @@ class Buzzer(CBPiExtension):
                                                                                                 {"label": "24", "value": 24},
                                                                                                 {"label": "25", "value": 25},
                                                                                                 {"label": "26", "value": 26},
-                                                                                                {"label": "27", "value": 27}])
+                                                                                                {"label": "27", "value": 27}],
+                                                                                                source="cbpi4-buzzer")
                 buzzer_gpio = self.cbpi.config.get("buzzer_gpio", None)
             except:
                 logger.warning('Unable to update config')
-                
-    async def buzzer_level(self):
-        global buzzer_level
-        buzzer_level = self.cbpi.config.get("buzzer_level", None)
+        else:
+            if self.buzzer_update == None or self.buzzer_update != self.version:
+                try:
+                    logger.error("*********************************************************************")
+                    await self.cbpi.config.add("buzzer_gpio", buzzer_gpio, type=ConfigType.SELECT, description="Buzzer GPIO", 
+                                                                                        options=[{"label": "0", "value": 0},
+                                                                                                {"label": "1", "value": 1},
+                                                                                                {"label": "2", "value": 2},
+                                                                                                {"label": "3", "value": 3},
+                                                                                                {"label": "4", "value": 4},
+                                                                                                {"label": "5", "value": 5},
+                                                                                                {"label": "6", "value": 6},
+                                                                                                {"label": "7", "value": 7},
+                                                                                                {"label": "8", "value": 8},
+                                                                                                {"label": "9", "value": 9},
+                                                                                                {"label": "10", "value": 10},
+                                                                                                {"label": "11", "value": 11},
+                                                                                                {"label": "12", "value": 12},
+                                                                                                {"label": "13", "value": 13},
+                                                                                                {"label": "14", "value": 14},
+                                                                                                {"label": "15", "value": 15},
+                                                                                                {"label": "16", "value": 16},
+                                                                                                {"label": "17", "value": 17},
+                                                                                                {"label": "18", "value": 18},
+                                                                                                {"label": "19", "value": 19},
+                                                                                                {"label": "20", "value": 20},
+                                                                                                {"label": "21", "value": 21},
+                                                                                                {"label": "22", "value": 22},
+                                                                                                {"label": "23", "value": 23},
+                                                                                                {"label": "24", "value": 24},
+                                                                                                {"label": "25", "value": 25},
+                                                                                                {"label": "26", "value": 26},
+                                                                                                {"label": "27", "value": 27}],
+                                                                                                source="cbpi4-buzzer")
+                except:
+                    logger.warning('Unable to update config')                 
+
+
         if buzzer_level is None:
             logger.info("INIT Buzzer Beep Level")
             try:
-                await self.cbpi.config.add("buzzer_level", "HIGH", ConfigType.SELECT, "Buzzer Beep Level", [{"label": "HIGH","value": "HIGH"},
-                                                                                                            {"label": "LOW", "value": "LOW"}])
+                await self.cbpi.config.add("buzzer_level", "HIGH", type=ConfigType.SELECT, description="Buzzer Beep Level", 
+                                                                                            options=[{"label": "HIGH","value": "HIGH"},
+                                                                                                    {"label": "LOW", "value": "LOW"}],
+                                                                                                    source="cbpi4-buzzer")
                 buzzer_level = self.cbpi.config.get("buzzer_level", None)
             except:
                 logger.warning('Unable to update database')
+        else:
+            if self.buzzer_update == None or self.buzzer_update != self.version:
+                try:
+                    logger.error("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+                    await self.cbpi.config.add("buzzer_level", buzzer_level, type=ConfigType.SELECT, description="Buzzer Beep Level", 
+                                                                                                options=[{"label": "HIGH","value": "HIGH"},
+                                                                                                        {"label": "LOW", "value": "LOW"}],
+                                                                                                        source="cbpi4-buzzer")
+                except:
+                    logger.warning('Unable to update config')                          
+
+        if self.buzzer_update == None or self.buzzer_update != self.version:
+            try:
+                logger.error("--------------------------------------------------------------------------------------")
+                await self.cbpi.config.add("buzzer_update", self.version, type=ConfigType.STRING, description="Buzzer update status",
+                                                                                                            source="hidden")
+            except:
+                logger.warning('Unable to update config')              
 
     async def buzzerEvent(self, cbpi, title, message, type, action):
         if str(type) == "info" or str(type) == "success":
