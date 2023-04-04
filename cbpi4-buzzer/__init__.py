@@ -78,16 +78,11 @@ class Buzzer(CBPiExtension):
 
 
     async def run(self):
-        this_directory = os.path.join( os.path.dirname( __file__ ), '..' )
-        with open(os.path.join(this_directory, 'version.py'), encoding='latin1') as fp:
-            #long_description = fp.read()
-            try:
-                match = re.search('.*\"(.*)\"', fp.readline())
-                self.version = match.group(1)
-            except:
-                self.version="0.0.0"
+        plugin = await self.cbpi.plugin.load_plugin_list("cbpi4-buzzer")
+        self.version=plugin[0].get("Version","0.0.0")
+
         self.buzzer_update = self.cbpi.config.get("buzzer_update", None)
-        logging.error(self.buzzer_update)
+
 
         self.sound = {'standard':["H", 0.1, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.1, "L"],
                       'warning':["H", 0.2, "L", 0.1, "H", 0.1, "L", 0.1, "H", 0.2, "L"],
@@ -130,7 +125,7 @@ class Buzzer(CBPiExtension):
         else:
             if self.buzzer_update == None or self.buzzer_update != self.version:
                 try:
-                    logging.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
                     await self.cbpi.config.add("buzzer_gpio_inverted",buzzer_gpio_inverted, type=ConfigType.SELECT, description="Buzzer GPIO Inverted ('High' on 'Low')",
                                            options= [{"label": "no", "value": False}, 
                                                      {"label": "yes", "value": True}],
@@ -178,7 +173,7 @@ class Buzzer(CBPiExtension):
         else:
             if self.buzzer_update == None or self.buzzer_update != self.version:
                 try:
-                    logger.error("*********************************************************************")
+
                     await self.cbpi.config.add("buzzer_gpio", buzzer_gpio, type=ConfigType.SELECT, description="Buzzer GPIO", 
                                                                                         options=[{"label": "0", "value": 0},
                                                                                                 {"label": "1", "value": 1},
@@ -226,7 +221,7 @@ class Buzzer(CBPiExtension):
         else:
             if self.buzzer_update == None or self.buzzer_update != self.version:
                 try:
-                    logger.error("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+
                     await self.cbpi.config.add("buzzer_level", buzzer_level, type=ConfigType.SELECT, description="Buzzer Beep Level", 
                                                                                                 options=[{"label": "HIGH","value": "HIGH"},
                                                                                                         {"label": "LOW", "value": "LOW"}],
@@ -236,7 +231,7 @@ class Buzzer(CBPiExtension):
 
         if self.buzzer_update == None or self.buzzer_update != self.version:
             try:
-                logger.error("--------------------------------------------------------------------------------------")
+
                 await self.cbpi.config.add("buzzer_update", self.version, type=ConfigType.STRING, description="Buzzer update status",
                                                                                                             source="hidden")
             except:
