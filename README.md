@@ -10,7 +10,7 @@
 
 ### Changelog
 
-- 04.04.23: (0.0.6.a1) Test for plugin settings selection test branch of cbpi
+- 05.04.23: (0.0.6.a3) Test for plugin settings selection test branch of cbpi
 - 12.03.23: (0.0.4) Added option for inverted GPIO
 - 10.04.21: (0.0.3) changed from asyncio.sleep to a thread as buzzer sound was impacted by asyncio.sleep accuracy
 - 01.04.21: Initial release
