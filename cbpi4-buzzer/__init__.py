@@ -117,9 +117,9 @@ class Buzzer(CBPiExtension):
             logger.info("INIT Buzzer GPIO Inverted")
             try:
                 await self.cbpi.config.add("buzzer_gpio_inverted", False, type=ConfigType.SELECT, description="Buzzer GPIO Inverted ('High' on 'Low')",
+                                                                                                            source=self.name,
                                                                                                             options= [{"label": "no", "value": False}, 
-                                                                                                                        {"label": "yes", "value": True}],
-                                                                                                            source=self.name)
+                                                                                                                        {"label": "yes", "value": True}])
                 buzzer_gpio_inverted = self.cbpi.config.get("buzzer_gpio_inverted", False)
             except:
                 logger.warning('Unable to update config')
@@ -128,9 +128,9 @@ class Buzzer(CBPiExtension):
                 try:
 
                     await self.cbpi.config.add("buzzer_gpio_inverted",buzzer_gpio_inverted, type=ConfigType.SELECT, description="Buzzer GPIO Inverted ('High' on 'Low')",
+                                            source=self.name,
                                            options= [{"label": "no", "value": False}, 
-                                                     {"label": "yes", "value": True}],
-                                           source=self.name)
+                                                     {"label": "yes", "value": True}])
                 except:
                     logger.warning('Unable to update config')                
 
@@ -139,6 +139,7 @@ class Buzzer(CBPiExtension):
             logger.info("INIT Buzzer GPIO")
             try:
                 await self.cbpi.config.add("buzzer_gpio", 5, type=ConfigType.SELECT, description="Buzzer GPIO", 
+                                                                                        source=self.name,
                                                                                         options=[{"label": "0", "value": 0},
                                                                                                 {"label": "1", "value": 1},
                                                                                                 {"label": "2", "value": 2},
@@ -166,8 +167,7 @@ class Buzzer(CBPiExtension):
                                                                                                 {"label": "24", "value": 24},
                                                                                                 {"label": "25", "value": 25},
                                                                                                 {"label": "26", "value": 26},
-                                                                                                {"label": "27", "value": 27}],
-                                                                                                source=self.name)
+                                                                                                {"label": "27", "value": 27}])
                 buzzer_gpio = self.cbpi.config.get("buzzer_gpio", None)
             except:
                 logger.warning('Unable to update config')
@@ -176,6 +176,7 @@ class Buzzer(CBPiExtension):
                 try:
 
                     await self.cbpi.config.add("buzzer_gpio", buzzer_gpio, type=ConfigType.SELECT, description="Buzzer GPIO", 
+                                                                                        source=self.name,
                                                                                         options=[{"label": "0", "value": 0},
                                                                                                 {"label": "1", "value": 1},
                                                                                                 {"label": "2", "value": 2},
@@ -203,8 +204,7 @@ class Buzzer(CBPiExtension):
                                                                                                 {"label": "24", "value": 24},
                                                                                                 {"label": "25", "value": 25},
                                                                                                 {"label": "26", "value": 26},
-                                                                                                {"label": "27", "value": 27}],
-                                                                                                source=self.name)
+                                                                                                {"label": "27", "value": 27}])
                 except:
                     logger.warning('Unable to update config')                 
 
@@ -213,9 +213,9 @@ class Buzzer(CBPiExtension):
             logger.info("INIT Buzzer Beep Level")
             try:
                 await self.cbpi.config.add("buzzer_level", "HIGH", type=ConfigType.SELECT, description="Buzzer Beep Level", 
+                                                                                            source=self.name,
                                                                                             options=[{"label": "HIGH","value": "HIGH"},
-                                                                                                    {"label": "LOW", "value": "LOW"}],
-                                                                                                    source=self.name)
+                                                                                                    {"label": "LOW", "value": "LOW"}])
                 buzzer_level = self.cbpi.config.get("buzzer_level", None)
             except:
                 logger.warning('Unable to update database')
@@ -224,9 +224,9 @@ class Buzzer(CBPiExtension):
                 try:
 
                     await self.cbpi.config.add("buzzer_level", buzzer_level, type=ConfigType.SELECT, description="Buzzer Beep Level", 
+                                                                                                source=self.name,
                                                                                                 options=[{"label": "HIGH","value": "HIGH"},
-                                                                                                        {"label": "LOW", "value": "LOW"}],
-                                                                                                        source=self.name)
+                                                                                                        {"label": "LOW", "value": "LOW"}])
                 except:
                     logger.warning('Unable to update config')                          
 
