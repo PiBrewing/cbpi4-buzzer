@@ -34,7 +34,7 @@ setup(name='cbpi4-buzzer',
       'cbpi4-buzzer': ['*','*.txt', '*.rst', '*.yaml']},
       packages=['cbpi4-buzzer'],
       install_requires=[
-      'cbpi4>=4.1.10'
+      'cbpi4>=4.1.10.rc2'
       ],
       long_description=long_description,
       long_description_content_type='text/markdown'
