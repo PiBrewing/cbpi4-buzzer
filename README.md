@@ -10,6 +10,7 @@
 
 ### Changelog
 
+- 02.06.23: (0.0.6.rc1) added cbpi version requirement
 - 16.04.23: (0.0.6.a4) bug fix for parameter generation
 - 05.04.23: (0.0.6.a3) Test for plugin settings selection test branch of cbpi
 - 12.03.23: (0.0.4) Added option for inverted GPIO
