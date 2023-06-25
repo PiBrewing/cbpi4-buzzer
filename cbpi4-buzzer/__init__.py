@@ -92,7 +92,7 @@ class Buzzer(CBPiExtension):
         await self.buzzer_settings()
         if buzzer_gpio is None or buzzer_gpio == "" or not buzzer_gpio:
             logger.warning('Check buzzer GPIO is set')
-        if buzzer_gpio_inverted is None or buzzer_gpio_inverted == "" or not buzzer_gpio_inverted:
+        if buzzer_gpio_inverted is None or buzzer_gpio_inverted == "":
             logger.warning('Check buzzer GPIO Inverted is set')
         if buzzer_level is None or buzzer_level == "" or not buzzer_level:
             logger.warning('Check buzzer level is set') 
