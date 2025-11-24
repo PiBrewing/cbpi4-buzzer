@@ -8,8 +8,16 @@
 - buzzer_level: Sound level(High or Low)
 - Different sounds for error, warning and other message types
 
+### Installation:
+
+Please have a look at the [Craftbeerpi4 Documentation](https://openbrewing.gitbook.io/craftbeerpi4_support/readme/plugin-installation)
+
+- Package name: cbpi4-buzzer
+- Package link: https://github.com/PiBrewing/cbpi4-buzzer/archive/main.zip
+
 ### Changelog
 
+- 24.11.25: (0.1.0) Add pyproject.toml to support pip 25.3+
 - 25.06.23: (0.0.8) internal change on startup with respect to logging of parameter check for gpio_inverted
 - 10.06.23: (0.0.7) fix issues in setup.py
 - 10.06.23: (0.0.6) bump version to release
